@@ -1,7 +1,5 @@
 ﻿/*
  * 
- * Cox_Program1
- * bcox6@cnm.edu
  * Program.cs
  * 06/1/2021
  * 
@@ -17,8 +15,6 @@ namespace Cox_Program1
         private static string DisplayHeader()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("Name: Brian Cox\n");
-            stringBuilder.Append("Program Name: Cox_Program1\n");
             stringBuilder.Append("Objective:\n");
             stringBuilder.Append("Calculate the pressure exerted by a gas in a container given the following inputs from the user: the name of " +
                                  "the gas, the volume of the gas container in cubic meters, the weight of the gas in grams and the temperature " +
@@ -28,6 +24,7 @@ namespace Cox_Program1
 
         static void GetMolecularWeights(ref string[] gasNames, ref double[] molecularWeights, out int count)
         {
+            
 
         }
 
