@@ -31,14 +31,11 @@ namespace Cox_Program1
             gasNames = new string[readText.Length - 1];
             molecularWeights = new double[readText.Length - 1];
             count = readText.Length - 1;
-            for (int i = 0; i < readText.Length; ++i)
+            for (int i = 1; i < readText.Length; ++i)
             {
-                if (i > 0)
-                {
-                    string[] splitText = readText[i].Split(',');
-                    gasNames[i - 1] = splitText[0];
-                    molecularWeights[i - 1] = double.Parse(splitText[1]);
-                }
+                string[] splitText = readText[i].Split(',');
+                gasNames[i - 1] = splitText[0];
+                molecularWeights[i - 1] = double.Parse(splitText[1]);
             }
         }
 
