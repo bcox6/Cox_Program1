@@ -24,9 +24,22 @@ namespace Cox_Program1
             return stringBuilder.ToString();
         }
 
-        static void GetMolecularWeights(ref string[] gasNames, ref double[] molecularWeights, out int count)
+        static void GetMolecularWeights(out string[] gasNames, out double[] molecularWeights, out int count, string csvPath)
         {
-            count = 0;
+
+            string[] readText = File.ReadAllLines(csvPath);
+            gasNames = new string[readText.Length - 1];
+            molecularWeights = new double[readText.Length - 1];
+            count = readText.Length - 1;
+            for (int i = 0; i < readText.Length; ++i)
+            {
+                if (i > 0)
+                {
+                    string[] splitText = readText[i].Split(',');
+                    gasNames[i - 1] = splitText[0];
+                    molecularWeights[i - 1] = double.Parse(splitText[1]);
+                }
+            }
         }
 
         private static void DisplayGasNames(string[] gasNames, int countGases)
@@ -44,7 +57,7 @@ namespace Cox_Program1
 
         private static double GetMolecularWeightFromName(string gasName, string[] gasNames, double[] molecularWeights, int countGases)
         {
-            for (int i = 0; i < gasNames.Length; ++i)
+            for (int i = 0; i < countGases; i++)
             {
                 if (gasName.Equals(gasNames[i], StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -80,37 +93,45 @@ namespace Cox_Program1
 
         private static void DisplayPressure(double pressure)
         {
-            double psi = pressure * 0.000145038;
+            double psi = PaToPSI(pressure);
             Console.WriteLine($"The Pressure of the selected gas is: {pressure} pascal and {psi} PSI");
         }
 
         static double PaToPSI(double pascals)
         {
-            double returnValue = 0.0;
-
-            return returnValue;
+            return pascals * 0.000145038;
         }
 
-        private static string AskUserInput(string question)
+        private static string AskUserInputString(string question)
         {
             Console.Write(question);
             return Console.ReadLine();
         }
 
-        private static void ReadAllLinesFromCsv(string csvPath, out string[] gasNames, out double[] gasWeight)
+        private static double AskUserInputDouble(string question)
         {
-            string[] readText = File.ReadAllLines(csvPath);
-            gasNames = new string[readText.Length - 1];
-            gasWeight = new double[readText.Length - 1];
-            for (int i = 0; i < readText.Length; ++i)
+            double returnValue = 0.0;
+            bool error;
+            do
             {
-                if (i > 0)
+                //Error catching when trying to parse out the users information into a double.
+                try
                 {
-                    string[] splitText = readText[i].Split(',');
-                    gasNames[i - 1] = splitText[0];
-                    gasWeight[i - 1] = double.Parse(splitText[1]);
+                    returnValue = double.Parse(AskUserInputString(question));
+                    error = false;
                 }
-            }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Please enter a number.");
+                    error = true;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("An unknown exception has occured.");
+                    error = true;
+                }
+            } while (error == true);
+            return returnValue;
         }
 
         static void Main(string[] args)
@@ -119,8 +140,8 @@ namespace Cox_Program1
             string[] gasNames;
             double[] molecularWeight;
             int elementCount = 0;
+            int totalCount = 0;
             string another = "y";
-            bool error;
             string userAnswer;
             double userVolumne = 0.0;
             double userMass = 0.0;
@@ -130,48 +151,31 @@ namespace Cox_Program1
 
             //Starting Program
             Console.Write(DisplayHeader());
-            ReadAllLinesFromCsv(@".\MolecularWeightsGasesAndVapors (1).csv", out gasNames, out molecularWeight);
+
+            //Filling out the arrays from csv.
+            GetMolecularWeights(out gasNames, out molecularWeight, out totalCount, @".\MolecularWeightsGasesAndVapors (1).csv");
+
+            //Displaying the Gas Names in 3 columns.
             DisplayGasNames(gasNames, elementCount);
             while (another == "y")
             {
-                error = false;
-                userAnswer = AskUserInput("Enter the name of the gas: ");
-                weight = GetMolecularWeightFromName(userAnswer, gasNames, molecularWeight, elementCount);
+                userAnswer = AskUserInputString("Enter the name of the gas: ");
+                weight = GetMolecularWeightFromName(userAnswer, gasNames, molecularWeight, totalCount);
                 if (weight > 0.0)
                 {
-                    do
-                    {
-                        try
-                        {
-                            userVolumne = double.Parse(AskUserInput("Enter the volumne of the gas in cubic meters: "));
-                            userMass = double.Parse(AskUserInput("Enter the mass of the gas in grams: "));
-                            userTemperature = double.Parse(AskUserInput("Enter the temperature of the gas in celcius: "));
-                            error = false;
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Please enter a number.");
-                            error = true;
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine("An unknown exception has occured.");
-                            error = true;
-                        }
-                    } while (error == true);
+
+                    userVolumne = AskUserInputDouble("Enter the volumne of the gas in cubic meters: ");
+                    userMass = AskUserInputDouble("Enter the mass of the gas in grams: ");
+                    userTemperature = AskUserInputDouble("Enter the temperature of the gas in celcius: ");
 
                     calcPressure = Pressure(userMass, userVolumne, userTemperature, weight);
 
                     DisplayPressure(calcPressure);
-
-                    if (error != true)
-                    {
-                        Console.Write("\nDo Another(y / n): ");
-                        another = Console.ReadLine();
-                    }
+                    Console.Write("\nDo Another(y/n): ");
+                    another = Console.ReadLine();
                 }
-                Console.WriteLine("Thank you for using my program to calculate the pressure of gas. Please come back and try again.");
             }
+            Console.WriteLine("\nThank you for using my program to calculate the pressure of gas. Please come back and try again.");
         }
     }
 
