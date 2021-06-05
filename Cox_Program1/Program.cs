@@ -24,7 +24,7 @@ namespace Cox_Program1
             return stringBuilder.ToString();
         }
 
-        static void GetMolecularWeights(out string[] gasNames, out double[] molecularWeights, out int count, string csvPath)
+        private static void GetMolecularWeights(out string[] gasNames, out double[] molecularWeights, out int count, string csvPath)
         {
 
             string[] readText = File.ReadAllLines(csvPath);
@@ -65,9 +65,10 @@ namespace Cox_Program1
             return 0.0;
         }
 
-        static double Pressure(double mass, double vol, double temp, double molecularWeight)
+        private static double Pressure(double mass, double vol, double temp, double molecularWeight)
         {
             double returnValue = 0.0;
+            //Static value.
             double R = 8.3145;
 
             double numOfMoles = NumberOfMoles(mass, molecularWeight);
@@ -78,13 +79,14 @@ namespace Cox_Program1
             return returnValue;
         }
 
-        static double NumberOfMoles(double mass, double molecularWeight)
+        private static double NumberOfMoles(double mass, double molecularWeight)
         {
             return mass/molecularWeight;
         }
 
-        static double CelciusToKelvin(double celcius)
+        private static double CelciusToKelvin(double celcius)
         {
+            //273.15 needs to be added to go to Kelvin.
             return celcius + 273.15;
         }
 
@@ -94,8 +96,9 @@ namespace Cox_Program1
             Console.WriteLine($"The Pressure of the selected gas is: {pressure} pascal and {psi} PSI");
         }
 
-        static double PaToPSI(double pascals)
+        private static double PaToPSI(double pascals)
         {
+            //0.000145038 is the conversion number to go to PSI.
             return pascals * 0.000145038;
         }
 
@@ -131,7 +134,7 @@ namespace Cox_Program1
             return returnValue;
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //Declaring Variables.
             string[] gasNames;
@@ -160,14 +163,18 @@ namespace Cox_Program1
                 weight = GetMolecularWeightFromName(userAnswer, gasNames, molecularWeight, totalCount);
                 if (weight > 0.0)
                 {
-
+                    //Asking users for Volumne, Mass, and Temp
                     userVolumne = AskUserInputDouble("Enter the volumne of the gas in cubic meters: ");
                     userMass = AskUserInputDouble("Enter the mass of the gas in grams: ");
                     userTemperature = AskUserInputDouble("Enter the temperature of the gas in celcius: ");
 
+                    //Calculating Pressure
                     calcPressure = Pressure(userMass, userVolumne, userTemperature, weight);
 
+                    //Displaying the results.
                     DisplayPressure(calcPressure);
+
+                    //Requesting to do another.
                     Console.Write("\nDo Another(y/n): ");
                     another = Console.ReadLine();
                 }
