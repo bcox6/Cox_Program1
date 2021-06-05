@@ -33,45 +33,55 @@ namespace Cox_Program1
         {
             StringBuilder stringBuilder = new StringBuilder();
             Console.WriteLine("Gas Names\n");
-            for (int i = 0; i < gasNames.Length; ++i)
+            for (int i = 0; i < gasNames.Length; i++)
             {
-                stringBuilder.Append($"{gasNames[i]}, ");
+                Console.Write("{0,-20}",gasNames[i]);
+                if (i % 3 == 2)
+                    Console.WriteLine();
             }
-            stringBuilder.Remove(stringBuilder.ToString().Length - 2, 2);
             Console.WriteLine(stringBuilder.ToString());
         }
 
         private static double GetMolecularWeightFromName(string gasName, string[] gasNames, double[] molecularWeights, int countGases)
         {
-            double returnValue = 0.0;
-
-            return returnValue;
+            for (int i = 0; i < gasNames.Length; ++i)
+            {
+                if (gasName.Equals(gasNames[i], StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return molecularWeights[i];
+                }
+            }
+            Console.WriteLine("Gas not found in the list. Verify name is correct.");
+            return 0.0;
         }
 
         static double Pressure(double mass, double vol, double temp, double molecularWeight)
         {
             double returnValue = 0.0;
+            double R = 8.3145;
+
+            double numOfMoles = NumberOfMoles(mass, molecularWeight);
+            double tempKelvin = CelciusToKelvin(temp);
+
+            returnValue = (R * numOfMoles * tempKelvin) / vol;
 
             return returnValue;
         }
 
         static double NumberOfMoles(double mass, double molecularWeight)
         {
-            double returnValue = 0.0;
-
-            return returnValue;
+            return mass/molecularWeight;
         }
 
         static double CelciusToKelvin(double celcius)
         {
-            double returnValue = 0.0;
-
-            return returnValue;
+            return celcius + 273.15;
         }
 
-        private static void DisplayPresure(double pressure)
+        private static void DisplayPressure(double pressure)
         {
-
+            double psi = pressure * 0.000145038;
+            Console.WriteLine($"The Pressure of the selected gas is: {pressure} pascal and {psi} PSI");
         }
 
         static double PaToPSI(double pascals)
@@ -87,7 +97,7 @@ namespace Cox_Program1
             return Console.ReadLine();
         }
 
-        private static void ReadAllLinesFromCsv(string csvPath, ref int arrayCount, out string[] gasNames, out double[] gasWeight)
+        private static void ReadAllLinesFromCsv(string csvPath, out string[] gasNames, out double[] gasWeight)
         {
             string[] readText = File.ReadAllLines(csvPath);
             gasNames = new string[readText.Length - 1];
@@ -112,40 +122,55 @@ namespace Cox_Program1
             string another = "y";
             bool error;
             string userAnswer;
-            double dblUserAnswer;
+            double userVolumne = 0.0;
+            double userMass = 0.0;
+            double userTemperature = 0.0;
+            double weight;
+            double calcPressure;
 
             //Starting Program
             Console.Write(DisplayHeader());
-            ReadAllLinesFromCsv(@".\MolecularWeightsGasesAndVapors (1).csv", ref elementCount, out gasNames, out molecularWeight);
+            ReadAllLinesFromCsv(@".\MolecularWeightsGasesAndVapors (1).csv", out gasNames, out molecularWeight);
             DisplayGasNames(gasNames, elementCount);
             while (another == "y")
             {
                 error = false;
                 userAnswer = AskUserInput("Enter the name of the gas: ");
-                try
+                weight = GetMolecularWeightFromName(userAnswer, gasNames, molecularWeight, elementCount);
+                if (weight > 0.0)
                 {
-                    dblUserAnswer = double.Parse(AskUserInput("Enter the volumne of the gas in cubic meters: "));
+                    do
+                    {
+                        try
+                        {
+                            userVolumne = double.Parse(AskUserInput("Enter the volumne of the gas in cubic meters: "));
+                            userMass = double.Parse(AskUserInput("Enter the mass of the gas in grams: "));
+                            userTemperature = double.Parse(AskUserInput("Enter the temperature of the gas in celcius: "));
+                            error = false;
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("Please enter a number.");
+                            error = true;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("An unknown exception has occured.");
+                            error = true;
+                        }
+                    } while (error == true);
+
+                    calcPressure = Pressure(userMass, userVolumne, userTemperature, weight);
+
+                    DisplayPressure(calcPressure);
+
+                    if (error != true)
+                    {
+                        Console.Write("\nDo Another(y / n): ");
+                        another = Console.ReadLine();
+                    }
                 }
-
-
-
-                catch (FormatException)
-                {
-                    Console.WriteLine("Please enter a number.");
-                    error = true;
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("An unknown exception has occured.");
-                    error = true;
-                }
-
-
-                if (error != true)
-                {
-                    Console.Write("\nDo Another(y / n): ");
-                    another = Console.ReadLine();
-                }
+                Console.WriteLine("Thank you for using my program to calculate the pressure of gas. Please come back and try again.");
             }
         }
     }
