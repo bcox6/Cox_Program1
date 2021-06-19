@@ -41,7 +41,8 @@ namespace Cox_Program1
 
         private static void DisplayGasNames(string[] gasNames, int countGases)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            // GLENN: it looks like you're not really using this StringBuilder, except to output "" below
+            // StringBuilder stringBuilder = new StringBuilder();
             Console.WriteLine("Gas Names\n");
             for (int i = 0; i < gasNames.Length; i++)
             {
@@ -49,7 +50,7 @@ namespace Cox_Program1
                 if (i % 3 == 2)
                     Console.WriteLine();
             }
-            Console.WriteLine(stringBuilder.ToString());
+            // Console.WriteLine(stringBuilder.ToString());
         }
 
         private static double GetMolecularWeightFromName(string gasName, string[] gasNames, double[] molecularWeights, int countGases)
@@ -157,6 +158,7 @@ namespace Cox_Program1
 
             //Displaying the Gas Names in 3 columns.
             DisplayGasNames(gasNames, elementCount);
+            // GLENN: Be careful, use String.Equals(...) instead.
             while (another == "y")
             {
                 userAnswer = AskUserInputString("Enter the name of the gas: ");
